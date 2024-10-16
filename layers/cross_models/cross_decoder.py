@@ -40,7 +40,7 @@ class DecoderLayer(nn.Module):
         y = self.MLP1(y)
         dec_output = self.norm2(x+y)
         
-        dec_output = rearrange(dec_output, '(b ts_d) seg_dec_num d_model -> b ts_d seg_dec_num d_model', b = batch)
+        dec_output = rearrange(dec_output, '(b ts_d) seg_dec_num d_model -> b ts_d seg_dec_num d_model', b = batch) # [32, 21, 1, 256]
         layer_predict = self.linear_pred(dec_output)
         layer_predict = rearrange(layer_predict, 'b out_d seg_num seg_len -> b (out_d seg_num) seg_len')
 
@@ -67,7 +67,7 @@ class Decoder(nn.Module):
         ts_d = x.shape[1]
         for layer in self.decode_layers:
             cross_enc = cross[i]
-            x, layer_predict = layer(x,  cross_enc)
+            x, layer_predict = layer(x,  cross_enc) # [32, 21, 24] [bs, variable_num, pre_len]
             if final_predict is None:
                 final_predict = layer_predict
             else:

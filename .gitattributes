@@ -1,0 +1,1 @@
+dataset/solar_AL.txt filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,13 @@
+  python -u run_longExp.py \
+    --dataset $data --model $model_name --seq_len $seq_len --pred_len $pred_len \
+    --itr $itr \
+    --learning_rate $learning_rate > logs/backbone/$model_name'_'$data'_'$pred_len'_lr'$learning_rate.log 2>&1
+
+
+nohup  python -u run_longExp.py \
+    --dataset Weather --model Crossformer --seq_len 336 --pred_len 24 \
+    --itr 1 \
+    --learning_rate 0.00005 &> logs/backbone/24-10-04/10-34_Crossformer_Weather_24_lr0.00005.log &
+
+
+nohup  python -u run_longExp.py --dataset Weather --model Linear --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.00005 &> logs/backbone/24-10-04-17-26_Linear_Weather_24_lr0.00005.log &

@@ -149,6 +149,13 @@ parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids o
 parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 parser.add_argument("--local-rank", default=os.getenv('LOCAL_RANK', -1), type=int)
 
+# memory and cl
+parser.add_argument('--use_mem', action='store_true', default=False)
+parser.add_argument('--mem_num', type=int, default=512, help='memory num')
+parser.add_argument('--cl', action='store_true', default=False)
+
+
+
 args = parser.parse_args()
 
 args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
@@ -308,7 +315,7 @@ if __name__ == '__main__':
             print('Checkpoints in', path)
             if not args.only_test or not os.path.exists(path):
                 print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-                _, train_data, train_loader, vali_data, vali_loader = exp.train(setting, train_data, train_loader, vali_data, vali_loader)
+                _, train_data, train_loader, vali_data, vali_loader, test_data, test_loader = exp.train(setting, train_data, train_loader, vali_data, vali_loader, test_data, test_loader)
                 torch.cuda.empty_cache()
             else:
                 print('Loading', path)

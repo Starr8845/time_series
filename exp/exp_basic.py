@@ -91,8 +91,16 @@ class Exp_Basic(object):
             optimizer = (optimizer, )
         for optim in optimizer:
             optim.zero_grad()
-        outputs = self.forward(batch)
-        loss = self.train_loss(criterion, batch, outputs)
+
+        if self.args.use_mem:
+            inp = self._process_batch(batch)
+            repres, mem_loss = self.model.get_repre(*inp)
+            outputs = self.model.predict(repres)
+            loss = self.train_loss(criterion, batch, outputs)
+            loss += 1e-5*mem_loss
+        else:
+            outputs = self.forward(batch)
+            loss = self.train_loss(criterion, batch, outputs)
         if self.args.use_amp:
             scaler.scale(loss).backward()
             for optim in optimizer:

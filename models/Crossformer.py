@@ -55,7 +55,7 @@ class Model(nn.Module):
         self.decoder = Decoder(seg_len, e_layers + 1, d_model, n_heads, d_ff, dropout, \
                                     out_seg_num = (self.pad_out_len // seg_len), factor = factor)
 
-    def forward(self, x_seq):
+    def forward(self, x_seq): # x_seq: [32, 336, 21]  [bs, input_len, variable_num]
         if (self.baseline):
             base = x_seq.mean(dim = 1, keepdim = True)
         else:
@@ -64,11 +64,11 @@ class Model(nn.Module):
         if (self.in_len_add != 0):
             x_seq = torch.cat((x_seq[:, :1, :].expand(-1, self.in_len_add, -1), x_seq), dim = 1)
 
-        x_seq = self.enc_value_embedding(x_seq)
+        x_seq = self.enc_value_embedding(x_seq)  # [32, 21, 14, 256]  # [bs, variable_num, input_len/self.seg_len, 256]
         x_seq += self.enc_pos_embedding
         x_seq = self.pre_norm(x_seq)
 
-        enc_out = self.encoder(x_seq)
+        enc_out = self.encoder(x_seq) # 长度为4的list, [[32, 21, 14, 256], [32, 21, 14, 256], [32, 21, 7, 256],  [32, 21, 4, 256] ]
 
         dec_in = repeat(self.dec_pos_embedding, 'b ts_d l d -> (repeat b) ts_d l d', repeat = batch_size)
         predict_y = self.decoder(dec_in, enc_out)

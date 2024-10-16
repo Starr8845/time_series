@@ -126,11 +126,13 @@ class Exp_Main(Exp_Basic):
                                batch[self.label_position].mean(1, keepdims=True)) * self.args.alpha
         return loss
 
-    def train(self, setting, train_data=None, train_loader=None, vali_data=None, vali_loader=None):
+    def train(self, setting, train_data=None, train_loader=None, vali_data=None, vali_loader=None, test_data=None, test_loader=None):
         if train_data is None:
             train_data, train_loader = self._get_data(flag='train')
         if vali_data is None:
             vali_data, vali_loader = self._get_data(flag='val')
+        if test_data is None:
+            test_data, test_loader = self._get_data(flag='test')
 
         if self.args.checkpoints:
             path = os.path.join(self.args.checkpoints, setting)
@@ -194,14 +196,14 @@ class Exp_Main(Exp_Basic):
             if not self.args.train_only:
                 if epoch >= self.args.begin_valid_epoch:
                     vali_loss = self.vali(vali_data, vali_loader, criterion)
-                    # test_loss = self.vali(test_data, test_loader, criterion)
-                    print("Vali Loss: {:.7f}".format(vali_loss))
+                    test_loss = self.vali(test_data, test_loader, criterion)
+                    print("Vali Loss: {:.7f} test Loss: {:.7f}".format(vali_loss, test_loss))
                     early_stopping(vali_loss, self, path)
                 else:
                     print()
             else:
                 early_stopping(train_loss, self, path)
-            print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            print("Epoch: {} cost time: {} min".format(epoch + 1, (time.time() - epoch_time)/60))
 
             if early_stopping.early_stop:
                 print("Early stopping")
@@ -221,7 +223,7 @@ class Exp_Main(Exp_Basic):
                     os.makedirs(path)
                 print('Save checkpoint to', path)
                 torch.save(self.state_dict(local_rank=self.args.local_rank), path + '/' + 'checkpoint.pth')
-        return self.model, train_data, train_loader, vali_data, vali_loader
+        return self.model, train_data, train_loader, vali_data, vali_loader, test_data, test_loader
 
     def test(self, setting, test_data=None, test_loader=None, test=0, target_variate=None):
         self.phase = 'test'
