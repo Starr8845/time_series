@@ -17,12 +17,20 @@ class Model(nn.Module):
         
         self.Linear1 = nn.Linear(self.seq_len, 128)
         self.Linear2 = nn.Linear(128, self.pred_len)
+        self.projector = nn.Linear(128, 128)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x):
+    def get_repre(self, x):
         repres = self.Linear1(x.permute(0,2,1))
         repres = self.sigmoid(repres)
-        result = self.Linear2(repres).permute(0,2,1) # [Batch, Output length, Channel]
+        repres = self.projector(repres)
+        return repres
+
+    def predict(self, repres_enhanced):
+        result = self.Linear2(repres_enhanced).permute(0,2,1) # [Batch, Output length, Channel]
         return result
     
-
+    def forward(self, x):
+        repres = self.get_repre(x)
+        result = self.predict(repres)
+        return result

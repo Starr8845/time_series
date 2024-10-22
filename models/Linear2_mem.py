@@ -47,16 +47,16 @@ class Model(nn.Module):
         batch_size, input_length, variable_num = x.shape[0], x.shape[1], x.shape[2]
         repres = self.Linear1(x.permute(0,2,1))  # [batch, channel, 128]
         repres = repres.view(-1, repres.shape[2])
-        repres, loss_constraint, _ = self.memory_enhance(repres, False)
+        repres, loss_constraint, same_proto_mask = self.memory_enhance(repres, False)
         repres = repres.view(batch_size, variable_num, -1)
-        return repres, loss_constraint
+        return repres, loss_constraint, same_proto_mask
     
     def predict(self, repres_enhanced):
         result = self.Linear2(repres_enhanced).permute(0,2,1) # [Batch, Output length, Channel]
         return result
     
     def forward(self, x):
-        repres, _ = self.get_repre(x)
+        repres, _, _ = self.get_repre(x)
         result = self.predict(repres)
         return result
     

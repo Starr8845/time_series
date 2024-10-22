@@ -150,9 +150,11 @@ parser.add_argument('--test_flop', action='store_true', default=False, help='See
 parser.add_argument("--local-rank", default=os.getenv('LOCAL_RANK', -1), type=int)
 
 # memory and cl
+parser.add_argument('--backbone', action='store_true', default=False) #直通forward  不设repres和predictor
 parser.add_argument('--use_mem', action='store_true', default=False)
 parser.add_argument('--mem_num', type=int, default=512, help='memory num')
 parser.add_argument('--cl', action='store_true', default=False)
+parser.add_argument('--mem_sele', action='store_true', default=False)
 
 
 

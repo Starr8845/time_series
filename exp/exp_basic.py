@@ -10,6 +10,7 @@ from torch import optim
 import torch.nn as nn
 
 from util.tools import remove_state_key_prefix
+from .CL_loss_all import multi_y_contrast_loss
 
 
 class Exp_Basic(object):
@@ -85,22 +86,40 @@ class Exp_Basic(object):
             outputs = outputs[0]
         loss = criterion(outputs, batch_y)
         return loss
+    
+    def _update_mem_cl(self, batch, criterion):
+        inp = self._process_batch(batch)
+        if self.args.use_mem:
+            repres, mem_loss, same_proto_mask = self.model.get_repre(*inp)
+            outputs = self.model.predict(repres)
+            loss = self.train_loss(criterion, batch, outputs)
+            loss += 1e-5*mem_loss
+        else:
+            repres, mem_loss, same_proto_mask = self.model.get_repre(*inp)
+            outputs = self.model.predict(repres)
+            loss = self.train_loss(criterion, batch, outputs)
+        if self.args.cl: # 这里要设置对比学习
+            batch_y = batch[1]
+            if self.args.mem_sele:
+                # TODO：使用 memory net 的结果来对对比样本对进行一定的选择
+                cl_loss, _ = multi_y_contrast_loss(repres, multi_y=batch_y, tau=1, y_sim_metric="IC", prior_mask=same_proto_mask)
+            else:
+                cl_loss, _ = multi_y_contrast_loss(repres, multi_y=batch_y, tau=1, y_sim_metric="IC")
+            loss += 1e-5*cl_loss
+        return loss, outputs
 
     def _update(self, batch, criterion, optimizer, scaler=None):
         if not isinstance(optimizer, tuple):
             optimizer = (optimizer, )
         for optim in optimizer:
             optim.zero_grad()
-
-        if self.args.use_mem:
-            inp = self._process_batch(batch)
-            repres, mem_loss = self.model.get_repre(*inp)
-            outputs = self.model.predict(repres)
-            loss = self.train_loss(criterion, batch, outputs)
-            loss += 1e-5*mem_loss
-        else:
+        
+        if self.args.backbone:
             outputs = self.forward(batch)
             loss = self.train_loss(criterion, batch, outputs)
+        else:
+            loss, outputs = self._update_mem_cl(batch, criterion)
+
         if self.args.use_amp:
             scaler.scale(loss).backward()
             for optim in optimizer:

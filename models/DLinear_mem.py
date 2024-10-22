@@ -100,16 +100,16 @@ class Model(nn.Module):
         seasonal_repres = self.Linear_Seasonal_1(seasonal_init)  # [batch, channel, 128]
         seasonal_repres = self.sigmoid(seasonal_repres)
         seasonal_repres = seasonal_repres.view(-1, seasonal_repres.shape[2])
-        seasonal_repres, seasonal_loss_constraint, _ = self.memory_enhance(seasonal_repres, self.memory_Seasonal,False)
+        seasonal_repres, seasonal_loss_constraint, mask1 = self.memory_enhance(seasonal_repres, self.memory_Seasonal,False)
         seasonal_repres = seasonal_repres.view(batch_size, variable_num, -1)
 
         trend_repres = self.Linear_Trend_1(trend_init)  # [batch, channel, 128]
         trend_repres = self.sigmoid(trend_repres)
         trend_repres = trend_repres.view(-1, trend_repres.shape[2])
-        trend_repres, trend_loss_constraint, _ = self.memory_enhance(trend_repres, self.memory_Trend, False)
+        trend_repres, trend_loss_constraint, mask2 = self.memory_enhance(trend_repres, self.memory_Trend, False)
         trend_repres = trend_repres.view(batch_size, variable_num, -1)
 
-        return (seasonal_repres, trend_repres), seasonal_loss_constraint + trend_loss_constraint
+        return (seasonal_repres, trend_repres), seasonal_loss_constraint + trend_loss_constraint, (mask1, mask2)
     
     def predict(self, repres_enhanced):
         seasonal_repres, trend_repres = repres_enhanced
@@ -118,7 +118,7 @@ class Model(nn.Module):
         return seasonal_output + trend_output
     
     def forward(self, x):
-        repres, _ = self.get_repre(x)
+        repres, _, _ = self.get_repre(x)
         result = self.predict(repres)
         return result
     

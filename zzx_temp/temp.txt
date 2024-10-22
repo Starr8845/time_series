@@ -11,3 +11,9 @@ nohup  python -u run_longExp.py \
 
 
 nohup  python -u run_longExp.py --dataset Weather --model Linear --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.00005 &> logs/backbone/24-10-04-17-26_Linear_Weather_24_lr0.00005.log &
+
+
+python -u run_longExp.py --dataset Weather --model DLinear_mem --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.001 --cl --use_mem --mem_sele
+
+
+python -u run_longExp.py --dataset wind --model Linear3 --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.005

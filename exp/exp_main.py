@@ -197,7 +197,8 @@ class Exp_Main(Exp_Basic):
                 if epoch >= self.args.begin_valid_epoch:
                     vali_loss = self.vali(vali_data, vali_loader, criterion)
                     test_loss = self.vali(test_data, test_loader, criterion)
-                    print("Vali Loss: {:.7f} test Loss: {:.7f}".format(vali_loss, test_loss))
+                    print("Vali Loss: {:.7f} test Loss: {:.7f}".format(vali_loss, test_loss), end=' ')
+                    self.test(setting, test_data, test_loader)
                     early_stopping(vali_loss, self, path)
                 else:
                     print()
@@ -247,7 +248,7 @@ class Exp_Main(Exp_Basic):
 
         metrics = calculate_metrics(statistics)
         mse, mae = metrics['MSE'], metrics['MAE']
-        print('mse:{}, mae:{}'.format(mse, mae))
+        print('mse:{:.7f}, mae:{:.7f}'.format(mse, mae))
         return mse, mae, test_data, test_loader
 
     def predict(self, setting, load=False):
