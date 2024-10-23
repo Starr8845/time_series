@@ -24,13 +24,13 @@ class Model(nn.Module):
         repres = self.Linear1(x.permute(0,2,1))
         repres = self.sigmoid(repres)
         repres = self.projector(repres)
-        return repres
+        return repres, None, None
 
     def predict(self, repres_enhanced):
         result = self.Linear2(repres_enhanced).permute(0,2,1) # [Batch, Output length, Channel]
         return result
     
     def forward(self, x):
-        repres = self.get_repre(x)
+        repres, _, _ = self.get_repre(x)
         result = self.predict(repres)
         return result

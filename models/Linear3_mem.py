@@ -39,6 +39,7 @@ class Model(nn.Module):
             loss_constraint+=loss2
         loss_constraint += torch.linalg.matrix_norm(self.memory)
         repres = torch.cat((output, repres), dim=1) # [batch, 4*hidden_size]
+        return repres, loss_constraint, None
         same_proto_mask = ((indices[:,0].reshape(-1,1) - indices[:,0].reshape(1,-1))==0)
         if get_attention:
             return repres, loss_constraint, same_proto_mask, attention

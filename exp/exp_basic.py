@@ -93,7 +93,7 @@ class Exp_Basic(object):
             repres, mem_loss, same_proto_mask = self.model.get_repre(*inp)
             outputs = self.model.predict(repres)
             loss = self.train_loss(criterion, batch, outputs)
-            loss += 1e-5*mem_loss
+            # loss += 1e-5*mem_loss
         else:
             repres, mem_loss, same_proto_mask = self.model.get_repre(*inp)
             outputs = self.model.predict(repres)
