@@ -36,3 +36,11 @@ python -u run_longExp.py --dataset wind --model MTGNN_mem2 --seq_len 336 --pred_
 
 
 python -u run_longExp.py --dataset PeMSD8 --model MTGNN_mem2 --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.001 --use_mem
+
+
+python -u run_longExp.py --dataset PeMSD8 --model MTGNN_mem2 --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.001 --use_mem
+
+python -u run_longExp.py --dataset PeMSD8 --model MTGNN2 --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.001
+
+
+python -u run_longExp.py --dataset Weather --model PatchTST2 --seq_len 336 --pred_len 24 --itr 1 --learning_rate 0.0001 --backbone
