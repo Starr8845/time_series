@@ -12,26 +12,22 @@ class Model(nn.Module):
                          end_channels=128, seq_length=args.seq_len, in_dim=self.in_dim, out_dim=self.pred_len * self.in_dim,
                          layers=3, propalpha=0.05,
                          tanhalpha=3, layer_norm_affline=True)
-
-        # self.projector = nn.Linear(end_channels, end_channels)
-        self.final_linear = nn.Linear(128, self.pred_len)
-
-    def get_repre(self, x):
-        B, L, N = x.shape
-        x = x.reshape(B, L, self.num_nodes, self.in_dim).permute(0, 3, 2, 1)
-        repres = self.gnn.get_repre(x)
-        return repres, None, None
-
-    def predict(self, repres_enhanced):
-        result = self.final_linear(repres_enhanced).permute(0,2,1) # [Batch, Output length, Channel]
-        return result
+        self.final_linear = nn.Linear(self.pred_len, self.pred_len)
 
     def forward(self, x):
-        repres, _, _ = self.get_repre(x)
-        result = self.predict(repres)
-        return result
-    
+        B, L, N = x.shape
+        x = x.reshape(B, L, self.num_nodes, self.in_dim).permute(0, 3, 2, 1)
+        pred = self.gnn(x)
+        if self.in_dim == 1:
+            repres = pred.squeeze(-1)
+        else:
+            repres = pred.reshape(B, self.pred_len, self.in_dim, self.num_nodes).transpose(-2, -1).reshape(B, self.pred_len, self.num_nodes * self.in_dim)
 
+        repres = repres.permute(0,2,1)
+        repres = self.final_linear(repres)
+        repres = repres.permute(0,2,1)
+        return repres
+    
 class gtnet(nn.Module):
     def __init__(self, gcn_true, buildA_true, gcn_depth, num_nodes, device, predefined_A=None, static_feat=None, dropout=0.3, subgraph_size=20, node_dim=40, dilation_exponential=1, conv_channels=32, residual_channels=32, skip_channels=64, end_channels=128, seq_length=12, in_dim=2, out_dim=12, layers=3, propalpha=0.05, tanhalpha=3, layer_norm_affline=True):
         super(gtnet, self).__init__()
@@ -102,10 +98,9 @@ class gtnet(nn.Module):
                                              kernel_size=(1,1),
                                              bias=True)
         self.end_conv_2 = nn.Conv2d(in_channels=end_channels,
-                                             out_channels=end_channels,
+                                             out_channels=out_dim,
                                              kernel_size=(1,1),
                                              bias=True)
-        
         if self.seq_length > self.receptive_field:
             self.skip0 = nn.Conv2d(in_channels=in_dim, out_channels=skip_channels, kernel_size=(1, self.seq_length), bias=True)
             self.skipE = nn.Conv2d(in_channels=residual_channels, out_channels=skip_channels, kernel_size=(1, self.seq_length-self.receptive_field+1), bias=True)
@@ -117,12 +112,15 @@ class gtnet(nn.Module):
 
         self.idx = nn.Parameter(torch.arange(self.num_nodes), requires_grad=False)
 
-    def get_repre(self, input, idx=None):
+
+    def forward(self, input, idx=None):
         seq_len = input.size(3)
         assert seq_len==self.seq_length, 'input sequence length not equal to preset sequence length'
 
         if self.seq_length<self.receptive_field:
             input = nn.functional.pad(input,(self.receptive_field-self.seq_length,0,0,0))
+
+
 
         if self.gcn_true:
             if self.buildA_true:
@@ -160,8 +158,5 @@ class gtnet(nn.Module):
         skip = self.skipE(x) + skip
         x = F.relu(skip)
         x = F.relu(self.end_conv_1(x))
-        repres = self.end_conv_2(x)
-        # repres: [bs, d, var_num, 1]
-        return repres
-
-    
+        x = self.end_conv_2(x)
+        return x

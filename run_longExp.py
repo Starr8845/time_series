@@ -214,7 +214,7 @@ if args.local_rank != -1:
 if FLAG_LIFT and args.pretrain and args.freeze:
     args.lradj = 'type3'
 
-if args.model in ['MTGNN']:
+if args.model in ['MTGNN','MTGNN2','MTGNN3','MTGNN_mem2','MTGNN_mem3']:
     if 'feat_dim' in data_settings[args.dataset]:
         args.in_dim = data_settings[args.dataset]['feat_dim']
         args.enc_in = int(args.enc_in / args.in_dim)
