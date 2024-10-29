@@ -162,6 +162,8 @@ class gtnet(nn.Module):
         x = F.relu(self.end_conv_1(x))
         repres = self.end_conv_2(x)
         # repres: [bs, d, var_num, 1]
+
+        repres = repres.squeeze(3).permute(0,2,1)
         return repres
 
     
