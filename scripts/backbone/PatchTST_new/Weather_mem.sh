@@ -12,7 +12,7 @@ data=Weather
 model_name=PatchTST2_mem
 train_epochs=100
 pct_start=0.3
-for pred_len in 48 96 192 336 720 24
+for pred_len in 48 96 192 336 720
 do
 for learning_rate in 0.0001
 do
@@ -26,6 +26,6 @@ do
     --pct_start $pct_start \
     --patience 16 \
     --learning_rate $learning_rate \
-    --use_mem > logs/backbone/$model_name'_'$data'_mem_'$pred_len'_lr'$learning_rate'_epoch'$train_epochs'_pct'$pct_start.log 2>&1
+    --use_mem --gpu 3 > logs/backbone/$model_name'_'$data'_mem_'$pred_len'_lr'$learning_rate'_epoch'$train_epochs'_pct'$pct_start.log 2>&1
 done
 done
