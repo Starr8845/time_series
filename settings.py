@@ -11,7 +11,7 @@ data_settings = {
     'ETTh2':{'data':'ETTh2.csv','T':'OT','M':[7,7],'S':[1,1],'MS':[7,1], 'prefetch_batch_size': 128},
     'ETTm1':{'data':'ETTm1.csv','T':'OT','M':[7,7],'S':[1,1],'MS':[7,1], 'prefetch_batch_size': 128},
     'ETTm2':{'data':'ETTm2.csv','T':'OT','M':[7,7],'S':[1,1],'MS':[7,1], 'prefetch_batch_size': 128},
-    'Solar':{'data':'solar_AL.txt','T': 136,'M':[137,137],'S':[1,1],'MS':[137,1], 'prefetch_batch_size': 32},
+    'Solar':{'data':'solar_AL_.txt','T': 136,'M':[137,137],'S':[1,1],'MS':[137,1], 'prefetch_batch_size': 32},
     'Weather':{'data':'weather.csv','T':'OT','M':[21,21],'S':[1,1],'MS':[21,1], 'prefetch_batch_size': 64},
     'Traffic': {'data': 'traffic.csv', 'T':'OT', 'M':[862,862], 'prefetch_batch_size': 2},
     'PeMSD8': {'data':'PeMSD8/PeMSD8.npz','T': 0,'M':[510,510],'S':[1,1],'MS':[510,1], 'prefetch_batch_size': 6, 'feat_dim': 3},
@@ -23,6 +23,7 @@ data_settings = {
 
 hyperparams = {
     'PatchTST': {'e_layers': 3, 'patience': 5},
+    'PatchTST2': {'e_layers': 3, 'patience': 5},
     'MTGNN': {},
     'Crossformer': {'lradj': 'Crossformer', 'e_layers': 3, 'seg_len': 24, 'd_ff': 512, 'd_model': 256, 'n_heads': 4, 'dropout': 0.2},
     'DLinear': {},
@@ -38,7 +39,7 @@ def get_hyperparams(data, model, args):
     # else:
     #     hyperparam['temperature'] = 1.0
 
-    if model == 'PatchTST':
+    if model in ['PatchTST','PatchTST2','PatchTST2_mem']:
         hyperparam['patience'] = max(hyperparam['patience'], args.patience)
         # if data in ['ECL']:
         #     hyperparam['patience'] = 10

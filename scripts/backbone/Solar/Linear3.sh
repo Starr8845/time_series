@@ -10,7 +10,7 @@ itr=2
 seq_len=336
 tau=1.0
 data=Solar
-model_name=DLinear
+model_name=Linear3
 
 learning_rate=0.005
 for pred_len in 24 48
