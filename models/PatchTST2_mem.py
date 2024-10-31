@@ -64,7 +64,7 @@ class Model(nn.Module):
         nn.init.xavier_normal_(self.memory, gain=nn.init.calculate_gain("relu"))
     
     def memory_enhance(self, repres, get_attention=False):
-        attention = torch.einsum("nd,fd->nf", repres, self.memory)
+        attention = torch.einsum("nd,fd->nf", repres.detach(), self.memory)
         m = nn.Softmax(dim=1)
         attention = m(attention)
         output = torch.einsum("nf,fd->nd", attention, self.memory)
